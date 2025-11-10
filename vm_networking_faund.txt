@@ -1,0 +1,19 @@
+gcloud compute networks list
+gcloud compute networks subnets list --network=default
+gcloud compute routes list --filter="network=default"
+gcloud compute firewall-rules list --filter="network=default"
+gcloud compute firewall-rules delete default-allow-icmp default-allow-internal default-allow-rdp default-allow-ssh -q
+gcloud compute networks delete default -q
+gcloud compute networks list
+gcloud compute networks create mynetwork --subnet-mode=auto
+gcloud compute firewall-rules create mynetwork-allow-icmp --network=mynetwork --allow=icmp
+gcloud compute firewall-rules create mynetwork-allow-internal --network=mynetwork --allow=tcp,udp,icmp --source-ranges=10.128.0.0/9
+gcloud compute firewall-rules create mynetwork-allow-rdp --network=mynetwork --allow=tcp:3389
+gcloud compute firewall-rules create mynetwork-allow-ssh --network=mynetwork --allow=tcp:22
+gcloud compute networks subnets list --network=mynetwork
+
+
+gcloud compute instances create mynet-us-vm --zone=us-east4-b --machine-type=e2-micro --subnet=mynetwork
+
+
+gcloud compute instances create mynet-second-vm --zone=europe-west4-a --machine-type=e2-micro --subnet=mynetwork
