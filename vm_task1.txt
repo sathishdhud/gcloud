@@ -1,0 +1,25 @@
+gcloud compute instances create gcelab \
+  --zone=us-east4-b \
+  --machine-type=e2-medium \
+  --image-family=debian-12 \
+  --image-project=debian-cloud \
+  --boot-disk-type=pd-balanced \
+  --boot-disk-size=10GB \
+  --tags=http-server \
+  --metadata=startup-script='#!/bin/bash
+    apt-get update -y
+    apt-get install -y nginx
+    systemctl enable nginx
+    systemctl start nginx'
+
+
+EXTERNAL_IP=$(gcloud compute instances describe gcelab --zone=us-east4-b --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
+echo "Visit http://$EXTERNAL_IP to see the NGINX welcome page"
+
+gcloud compute firewall-rules create allow-http \
+  --allow tcp:80 \
+  --target-tags=http-server \
+  --description="Allow HTTP traffic"
+
+
+gcloud compute instances add-tags gcelab --zone=us-east4-b --tags=http-server
